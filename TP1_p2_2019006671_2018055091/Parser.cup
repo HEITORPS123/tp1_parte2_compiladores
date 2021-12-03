@@ -1,0 +1,103 @@
+/*=========================================================
+ * Integrante 1: Filipe Rodrigues Batista de Oliveira - 2018055091
+ * Integrante 2: Heitor Damasceno - 2019006671
+ * ========================================================*/
+
+import java_cup.runtime.*;
+
+parser code {:
+ 
+    public void report_error(String message, Object info)  {
+        System.out.println("Aviso - " + message);
+    }
+
+    public void report_fatal_error(String message, Object info) throws Exception {
+        System.out.println("Erro! - " + message);
+        throw new Exception();
+    }
+
+:}
+
+terminal ARRAY, IF, THEN, ELSE, WHILE, FOR, TO, DO, LET, IN, END, OF, BREAK, NIL, FUNCTION, VAR, TYPE, IMPORT, PRIMITIVE;
+terminal CLASS, EXTENDS, METHOD, NEW;
+terminal MAIS, MENOS, MULT, DIV, IGUAL, DIF, MAIOR, MENOR, MAIORIGUAL, MENORIGUAL, AND, OR, BARRA, ATRIB;
+terminal VIRGULA, DPONTOS, PVIRGULA, PONTO, APAR, FPAR, ACOL, FCOL, ACHA, FCHA;
+terminal ID, INTEIRO, STRING;
+
+non terminal exp, decs, dec, tydec;
+non terminal ty, tyfields, tyfields1, vardec;
+non terminal fundec, lvalue, typeid, expseq, expseq1;
+non terminal args, args1, idexps;
+
+precedence left MULT, DIV, MAIS, MENOS, IGUAL, DIF, MAIOR, MENOR, MAIORIGUAL, MENORIGUAL, AND, OR;
+precedence left ELSE;
+
+exp ::= lvalue {:System.out.println("exp => lvalue");:} 
+		| typeid {:System.out.println("exp => lvalue");:} 
+		| NIL {:System.out.println("exp => NIL");:}
+		| APAR expseq FPAR {:System.out.println("exp => APAR expseq FPAR");:}
+		| INTEIRO {:System.out.println("exp => INTEIRO");:}
+		| STRING {:System.out.println("exp => STRING");:}
+		| MENOS exp {:System.out.println("exp => MENOS exp");:}
+		| ID APAR args FPAR {:System.out.println("exp => ID APAR args FPAR");:}
+		| exp MAIS exp {:System.out.println("exp => exp MAIS exp");:}  
+		| exp MENOS exp {:System.out.println("exp => exp MENOS exp");:} 
+		| exp MULT exp {:System.out.println("exp => exp MULT exp");:} 
+		| exp DIV exp {:System.out.println("exp => exp DIV exp");:} 
+		| exp IGUAL exp {:System.out.println("exp => exp IGUAL exp");:}
+		| exp DIF exp {:System.out.println("exp => exp DIF exp");:}
+		| exp MENOR exp {:System.out.println("exp => exp MENOR exp");:} 
+		| exp MAIOR exp {:System.out.println("exp => exp MAIOR exp");:}
+		| exp MENORIGUAL exp {:System.out.println("exp => exp MENORIGUAL exp");:}
+		| exp MAIORIGUAL exp {:System.out.println("exp => exp MAIORIGUAL exp");:}
+		| exp AND exp {:System.out.println("exp => exp AND exp");:} 
+		| exp OR exp {:System.out.println("exp => exp OR exp");:} 
+		| typeid ACHA ID IGUAL exp idexps FCHA {:System.out.println("exp => typeid ACHA ID IGUAL exp idexps FCHA");:} 
+		| typeid ACOL exp FCOL OF exp {:System.out.println("exp => typeid ACOL exp FCOL OF exp");:} 
+		| lvalue ATRIB exp {:System.out.println("exp => lvalue ATRIB exp");:} 
+		| typeid ATRIB exp {:System.out.println("exp => lvalue ATRIB exp");:} 
+		| IF exp THEN exp ELSE exp {:System.out.println("exp => IF exp THEN exp ELSE exp");:} 
+		| IF exp THEN exp {:System.out.println("exp => IF exp THEN exp");:} 
+		| WHILE exp DO exp {:System.out.println("exp => WHILE exp DO exp");:} 
+		| FOR ID ATRIB exp TO exp DO exp {:System.out.println("exp => FOR ID ATRIB exp TO exp DO exp");:} 
+		| BREAK {:System.out.println("exp => BREAK");:} 
+		| LET decs IN expseq END {:System.out.println("exp => LET decs IN expseq END");:};
+
+decs ::= dec decs {:System.out.println("decs => dec decs");:} |;
+
+dec ::= tydec {:System.out.println("dec => tydec");:}
+		| vardec {:System.out.println("dec => vardec");:}
+		| fundec {:System.out.println("dec => fundec");:};
+
+tydec ::= TYPE ID IGUAL ty {:System.out.println("tydec => TYPE ID IGUAL ty");:};
+
+ty ::= ID {:System.out.println("ty => ID");:} 
+	   | ACHA ID DPONTOS typeid tyfields1 FCHA {:System.out.println("ty => ACOL ID DPONTOS typeid tyfields1 FCOL");:} 
+	   | ARRAY OF ID {:System.out.println("ty => ARRAY OF ID");:} ;
+
+tyfields ::= ID DPONTOS typeid tyfields1 {:System.out.println("tyfields => ID DPONTOS typeid tyfields1");:}|;
+
+tyfields1 ::= VIRGULA ID DPONTOS typeid tyfields1 {:System.out.println("tyfields1 => VIRGULA ID DPONTOS typeid tyfields1");:}|;
+
+vardec ::= VAR ID ATRIB exp {:System.out.println("vardec => VAR ID ATRIB exp");:}
+		   | VAR ID DPONTOS typeid ATRIB exp {:System.out.println("vardec => VAR ID DPONTOS typeid ATRIB exp");:};
+
+fundec ::= FUNCTION ID APAR tyfields FPAR IGUAL exp {:System.out.println("fundec => FUNCTION ID APAR tyfields FPAR IGUAL exp");:}
+		   | FUNCTION ID APAR tyfields FPAR DPONTOS typeid IGUAL exp {:System.out.println("fundec => FUNCTION ID APAR tyfields FPAR DPONTOS typeid IGUAL exp");:};
+
+lvalue ::= lvalue PONTO ID {:System.out.println("lvalue => lvalue PONTO ID");:}
+		   | lvalue ACOL exp FCOL {:System.out.println("lvalue => lvalue ACOL exp FCOL");:}
+		   | typeid PONTO ID {:System.out.println("lvalue => lvalue PONTO ID");:}
+		   | typeid ACOL exp FCOL {:System.out.println("lvalue => lvalue ACOL exp FCOL");:};
+
+typeid ::= ID {:System.out.println("typeid => ID");:};
+
+expseq ::= exp expseq1 {:System.out.println("expseq => exp expseq1");:}|;
+
+expseq1 ::= PVIRGULA exp expseq1 {:System.out.println("expseq1 => PVIRGULA exp expseq1");:}|;
+
+args ::= exp args1 {:System.out.println("args => exp args1");:}|;
+
+args1 ::= VIRGULA exp args1 {:System.out.println("args1 => VIRGULA exp args1");:}|;
+
+idexps ::= VIRGULA ID IGUAL exp idexps {:System.out.println("idexps => VIRGULA ID IGUAL exp idexps");:}|;
